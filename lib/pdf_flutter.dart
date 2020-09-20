@@ -8,7 +8,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+
+class CustomCacheManager extends BaseCacheManager {
+  // static const key = "";
+
+  // static CustomCacheManager _instance;
+
+  // factory CustomCacheManager() {
+  //   if (_instance == null) {
+  //     _instance = new CustomCacheManager._();
+  //   }
+  //   return _instance;
+  // }
+
+  // CustomCacheManager._()
+  //     : super(key,
+  //           maxAgeCacheObject: Duration(days: 7), maxNrOfCacheObjects: 20);
+  CustomCacheManager({
+    Key key,
+    @required this.cacheKey,
+  }) : super('');
+
+  final cacheKey;
+
+  // var  cacheKey;
+
+  Future<String> getFilePath() async {
+    var directory = await getTemporaryDirectory();
+    return p.join(directory.path, cacheKey);
+  }
+}
 
 class PDF extends StatefulWidget {
   const PDF._({
@@ -18,6 +49,7 @@ class PDF extends StatefulWidget {
     this.width = 150,
     this.height = 250,
     this.placeHolder,
+    this.cacheKey,
   });
 
   /// Load PDF from network
@@ -75,6 +107,7 @@ class PDF extends StatefulWidget {
   final double height;
   final double width;
   final Widget placeHolder;
+  final String cacheKey;
 
   @override
   _PDFState createState() => _PDFState();
@@ -131,8 +164,11 @@ class _PDFState extends State<PDF> {
   }
 
   Future<void> loadNetworkPDF() async {
-    File fetchedFile =
-        await DefaultCacheManager().getSingleFile(widget.networkURL);
+    CustomCacheManager cachemanage = CustomCacheManager(
+      cacheKey: widget.cacheKey,
+    );
+
+    File fetchedFile = await cachemanage.getSingleFile(widget.networkURL);
     await (writeCounter(fetchedFile.readAsBytesSync()));
     path = (await _localFile).path;
   }
