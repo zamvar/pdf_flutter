@@ -59,6 +59,7 @@ class PDF extends StatefulWidget {
     String url, {
     double width = 150,
     double height = 250,
+    String cacheKey,
     Widget placeHolder,
   }) {
     return PDF._(
@@ -164,6 +165,7 @@ class _PDFState extends State<PDF> {
   }
 
   Future<void> loadNetworkPDF() async {
+    print(widget.cacheKey);
     CustomCacheManager cachemanage = CustomCacheManager(
       cacheKey: widget.cacheKey,
     );
